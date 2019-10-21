@@ -1,0 +1,39 @@
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    android:background="@drawable/main_bg"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Button
+        android:id="@+id/play_btn"
+        android:onClick="OnPlay"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_above="@+id/about_btn"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/play_btn" />
+
+    <Button
+        android:id="@+id/music_btn"
+        android:onClick="OnMusic"
+        android:background="@drawable/btn_music1"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_margin="10dp"
+        android:layout_alignParentBottom="true" />
+
+    <Button
+        android:id="@+id/about_btn"
+        android:onClick="OnAbout"
+        android:background="@drawable/about_btn"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="10dp" />
+
+
+</RelativeLayout>

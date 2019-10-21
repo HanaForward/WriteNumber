@@ -1,0 +1,184 @@
+package cn.hana.writenumber;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.Window;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Timer;
+
+public class NumberActivity extends Activity {
+
+    private ImageView iv_frame;
+    int i = 1;
+    float x1, y1, x2, y2, x3, y3;
+    int igvx, igvy;
+    int type = 0;
+    int widthPixels, heightPixels;
+    int scaleWidth, scaleHeight;
+    Timer touchTimer = null;
+    Bitmap arrdown;
+    boolean typedialog = true;
+    private LinearLayout linearLayout;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_number);
+        initView();
+
+    }
+
+    private void initView() {
+        iv_frame = findViewById(R.id.iv_frame);
+        linearLayout = findViewById(R.id.LinearLayout);
+        LinearLayout write_layout = findViewById(R.id.LinearLayout_Number);
+        write_layout.setBackgroundResource(R.drawable.bg1);
+
+        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+
+        widthPixels = displayMetrics.widthPixels;
+        heightPixels = displayMetrics.heightPixels;
+
+        scaleWidth = widthPixels / 720;
+        scaleHeight = heightPixels / 1280;
+
+        try {
+            InputStream is = this.getResources().getAssets().open("on1_1.png");
+            //使用Bitmap 解析第一张图片
+            arrdown = BitmapFactory.decodeStream(is);
+        } catch (IOException e) {
+            Log.d("严重错误", e.getMessage().toString());
+        }
+
+        if (arrdown == null)
+            Log.d("严重错误", "Bitmap IS Null");
+
+        //获取布局的宽高信息
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) iv_frame.getLayoutParams();
+
+        //获取图片的缩放后宽高
+        layoutParams.width = arrdown.getWidth() * scaleWidth;
+        layoutParams.height = arrdown.getHeight() * scaleHeight;
+        iv_frame.setLayoutParams(layoutParams);
+        lodimagep(1);
+        linearLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        x1 = event.getX();
+                        y1 = event.getY();
+                        igvx = iv_frame.getLeft();
+                        igvy = iv_frame.getTop();
+                        int num = (arrdown.getWidth() * scaleWidth);
+
+                        if (x1 >= igvx &&
+                                x1 <= igvx + num &&
+                                y1 >= igvy &&
+                                y1 <= igvy + num)
+                            type = 1;
+                        else
+                            type = 0;
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        Log.d("event", "ACTION_MOVE");
+                        igvx = (int) iv_frame.getLeft();
+                        igvy = (int) iv_frame.getRight();
+                        x2 = event.getX();
+                        y2 = event.getY();
+
+                        //根据画笔以及手势做图片处理
+                        if (type == 1) {
+                            Log.d("type", String.valueOf(type));
+
+                            if (x2 >= igvx && x2 <= igvx + (arrdown.getWidth() * scaleWidth)) {
+
+                                Log.d("x2", String.valueOf((int) x2));
+
+                                Log.d("num", String.valueOf((int) arrdown.getWidth() * scaleWidth));
+
+                                if (y2 <= igvy + (int) arrdown.getHeight() * scaleHeight / 24 && y2 >= igvy) {
+                                    Log.d("event", "lodimagep");
+                                    lodimagep(1);
+                                } else {
+                                    for (i = 2; i < 25; i++) {
+                                        if (y2 <= igvy + (int) arrdown.getHeight() * scaleHeight / 24 * i) {
+                                            lodimagep(i);
+                                            break;
+                                        }
+                                        if (i == 24)
+                                            type = 0;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+
+                }
+                return true;
+            }
+        });
+
+
+    }
+
+    private void lodimagep(int j) {
+        i = j;
+        if (i < 25) {
+            String name = "on1_" + i;
+            int imgid = getResources().getIdentifier(name, "drawable", "cn.hana.writenumber");
+            iv_frame.setBackgroundResource(imgid);
+            i++;
+        }
+
+        if (j == 24) {
+            if (typedialog)
+                dialog();
+
+        }
+    }
+
+    private void dialog() {
+        typedialog = false;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("太棒了!书写完成!");
+        builder.setTitle("提示");
+
+        builder.setPositiveButton("完成", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                typedialog = true;
+                finish();
+            }
+        });
+
+        builder.setNegativeButton("再来一次", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                typedialog = true;
+                i = 1;
+                lodimagep(1);
+            }
+        });
+
+
+        builder.create().show();
+    }
+}
